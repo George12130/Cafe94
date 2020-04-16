@@ -25,7 +25,7 @@ public class deliveryOrderController {
      * FXML assignments
      */
     @FXML private ComboBox<String> tableList;
-    @FXML private ComboBox<item> favoriteList;
+    @FXML private ComboBox<item> dailyList;
     @FXML private ComboBox<item> starterList;
     @FXML private ComboBox<item> mainList;
     @FXML private ComboBox<item> sideList;
@@ -43,6 +43,7 @@ public class deliveryOrderController {
     ResultSet rs = null;
     PreparedStatement pst = null;
 
+    public ObservableList<item> dailyObservableList = FXCollections.observableArrayList();
     public ObservableList<item> starterObservableList = FXCollections.observableArrayList();
     public ObservableList<item> mainObservableList = FXCollections.observableArrayList();
     public ObservableList<item> sideObservableList = FXCollections.observableArrayList();
@@ -63,6 +64,7 @@ public class deliveryOrderController {
             pst = connection.prepareStatement(query);
             rs = pst.executeQuery();
             fillMenuLists(rs);
+            dailyList.setItems(dailyObservableList);
             starterList.setItems(starterObservableList);
             mainList.setItems(mainObservableList);
             sideList.setItems(sideObservableList);
@@ -84,7 +86,8 @@ public class deliveryOrderController {
             temp.setPrice(rs.getDouble("price") );
             String type = rs.getString("type");
             temp.setType(type);
-            if(type.equals("starter")) starterObservableList.add(temp);
+            if (type.equals("dailySpecial")) dailyObservableList.add(temp);
+            else if(type.equals("starter")) starterObservableList.add(temp);
             else if(type.equals("main")) mainObservableList.add(temp);
             else if(type.equals("side")) sideObservableList.add(temp);
             else if(type.equals("dessert")) dessertObservableList.add(temp);
@@ -154,6 +157,24 @@ public class deliveryOrderController {
         window.show();
     }
 
+    public void onAddDailyButtonPressed(ActionEvent event){
+        try{
+            if(!dailyList.getSelectionModel().isEmpty()) {
+                item temp = dailyList.getSelectionModel().getSelectedItem();
+                resultList.add(temp);
+                itemName.setCellValueFactory(new PropertyValueFactory<item, String>("itemName"));
+                itemPrice.setCellValueFactory(new PropertyValueFactory<item, Double>("price"));
+                finalOrderView.setItems(resultList);
+                totalCost += temp.getPrice();
+
+
+                menuResultPrice.setText(String.valueOf(totalCost));
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
     public void onAddStarterButtonPressed(ActionEvent event){
         try{
             if(!starterList.getSelectionModel().isEmpty()) {
